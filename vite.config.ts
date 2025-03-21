@@ -1,4 +1,4 @@
-import { dirname, resolve } from 'node:path';
+import path, { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
@@ -11,7 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        // nested: resolve(__dirname, 'src/nested/index.html'),
+        // hello_controller: resolve(__dirname, 'src/controllers/hello_controller.ts'),
       },
     },
   },

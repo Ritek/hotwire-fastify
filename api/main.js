@@ -5,13 +5,18 @@ import FastifyWebSocket from "@fastify/websocket";
 import FastifyFormbody from "@fastify/formbody";
 import { createWebSocketStream } from 'ws';
 import fastifyStatic from '@fastify/static';
-import path from 'path';
+import path, { dirname } from 'path';
+import { randomInt } from 'crypto';
+import { fileURLToPath } from 'url';
 const TurboHeader = { "content-type": "text/vnd.turbo-stream.html; charset=utf-8" };
 const fastify = Fastify({
     logger: true
 });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const absolutePath = path.join(__dirname, "../dist");
 await fastify.register(fastifyStatic, {
-    root: path.join("/home/wojciech/Work/hotwire-nodejs/dist"),
+    root: absolutePath
 });
 await fastify.register(FastifyWebSocket);
 await fastify.register(FastifyFormbody);
@@ -20,13 +25,28 @@ fastify.get("/", (_, reply) => {
 });
 fastify.get("/initial_messages", (_, res) => {
     const ts = new TurboStream();
-    ts.append('initial_messages', '<p>Initial Messages</p>');
+    ts.append('messages', '<p>System Message: Welcome</p>');
     res.headers(TurboHeader).send(ts.render());
 });
 fastify.post("/messages", (req, res) => {
     const body = req.body;
     const ts = new TurboStream();
-    ts.append("messages", `<div class="bg-red-500">Task: ${body.task}</div>`);
+    const random = randomInt(100);
+    ts.append("messages", `<div id="${random}" class="chat-message flex justify-between border-b-2 border-gray-400 mb-2">
+    User "${body.user || "anonim"}", sent: ${body.message} 
+    <button class="hover:text-red-500" type="submit" name="removeMessage" value="${random}" 
+      formmethod="post" formaction="/delete-message" formtarget="blank" formnovalidate="formnovalidate"
+      onClick="this.parentElement.classList.add('fade-out')"
+      >&#10799;</button>
+  </div>`);
+    res
+        .headers(TurboHeader)
+        .send(ts.render());
+});
+fastify.post("/delete-message", (req, res) => {
+    const body = req.body;
+    const ts = new TurboStream();
+    ts.remove(`${body.removeMessage}`);
     res
         .headers(TurboHeader)
         .send(ts.render());
@@ -34,15 +54,12 @@ fastify.post("/messages", (req, res) => {
 fastify.get("/ws", { websocket: true }, (socket) => {
     const ts = new TurboStream();
     const readable = ts.createReadableStream();
-    ts
-        .append('target-id', '<p>My content</p>')
-        .update('target-id-2', '<p>Updated content</p>')
-        .remove('target-id-2');
+    ts.append('messages', '<p>My content</p>');
     const stream = createWebSocketStream(socket, { /* options */});
     stream.setEncoding('utf8');
     readable.pipe(stream);
-    ts
-        .append('target-id', '<p>My content 2</p>');
+    ts.append('target-id', '<p>My content 2</p>');
+    socket.send(ts.render());
 });
 fastify.get("/sse", (_, res) => {
     res.headers({

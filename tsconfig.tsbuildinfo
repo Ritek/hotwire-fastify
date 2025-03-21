@@ -1,1 +1,1 @@
-{"root":["./src/AppBar.ts","./src/counter.ts","./src/main.ts","./src/sse.ts","./src/vite-env.d.ts"],"version":"5.7.3"}
+{"root":["./src/AppBar.ts","./src/counter.ts","./src/hello_controller.ts","./src/main.ts","./src/sse.ts","./src/vite-env.d.ts"],"version":"5.7.3"}

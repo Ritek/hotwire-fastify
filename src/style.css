@@ -3,7 +3,35 @@
 
 @theme {
   --color-dark-theme-bg: #242424;
-  --color-ligth-theme-bg: "#000000";
+  --color-ligth-theme-bg: #FFFFFF;
+}
+
+.chat-message {
+  animation: fadeIn 1s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 /* :root {
